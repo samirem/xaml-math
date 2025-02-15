@@ -102,6 +102,11 @@ internal sealed class WpfElementRenderer : IElementRenderer
         }
     }
 
+    public System.Windows.Size GetBounds()
+    {
+        return _foregroundGroup.Bounds.Size;
+    }
+
     private static Transform ToTransform(Transformation transformation)
     {
         switch (transformation.Kind)
