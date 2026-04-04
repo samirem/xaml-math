@@ -126,6 +126,13 @@
 
   <!-- Composed TeX symbols -->
 
+  <Formula name="permille" enabled="true">
+    <CreateFormula name="f">
+      <Argument type="string" value="\text{‰}" />
+    </CreateFormula>
+    <Return name="f" />
+  </Formula>
+
   <Formula name="ne" enabled="true">
     <CreateFormula name="f">
       <Argument type="string" value="\not\equals" />
