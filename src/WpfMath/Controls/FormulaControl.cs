@@ -18,6 +18,20 @@ public class FormulaControl : Control
     private TexFormula? texFormula;
     private Size _bounds;
 
+    /// <summary>
+    /// Distance, in the control's own (scaled) coordinate units, from the top of the
+    /// rendered content down to the TeX baseline of the formula. Updated on every measure.
+    /// </summary>
+    /// <remarks>
+    /// The control sizes to the ink bounding box (no baseline), so <see cref="VerticalAlignment"/>
+    /// alone never lines a symbol up with adjacent text. Consumers that need true baseline
+    /// alignment (e.g. a baseline-aware panel) read this value: the formula renders its
+    /// baseline at this Y offset from the arrange-rect top, so placing the control at
+    /// <c>commonBaseline - Baseline</c> lands every formula's baseline on a shared line,
+    /// regardless of descenders or subscripts. Replaces per-symbol TranslateTransform fudge.
+    /// </remarks>
+    public double Baseline { get; private set; }
+
     public string Formula
     {
         get { return (string)GetValue(FormulaProperty); }
@@ -179,15 +193,32 @@ public class FormulaControl : Control
 
     protected override Size MeasureOverride(Size constraint)
     {
-        using var context = new DrawingVisual().RenderOpen();
+        if (texFormula == null)
+        {
+            Baseline = 0;
+            return new Size();
+        }
 
-        return texFormula?.RenderTo(
+        // The root box's Height is the logical distance from the box top to the baseline;
+        // the renderer draws content at literal (scaled) coordinates, so the baseline lands
+        // at this offset from the arrange-rect top. Scale matches RenderTo's returned size.
+        // CreateBox MUTATES the environment's LastFontId (RowAtom/UnderOverAtom), so this
+        // uses its OWN throwaway environment and never shares the instance handed to RenderTo.
+        Baseline = texFormula.CreateBox(
+                WpfTeXEnvironment.Create(
+                    scale: Scale,
+                    systemTextFontName: SystemTextFontName,
+                    foreground: Foreground))
+            .Height * Scale;
+
+        using var context = new DrawingVisual().RenderOpen();
+        return texFormula.RenderTo(
             context,
             WpfTeXEnvironment.Create(
                 scale: Scale,
                 systemTextFontName: SystemTextFontName,
                 foreground: Foreground),
-            Scale) ?? new Size();
+            Scale);
     }
 
     private static object CoerceFormula(DependencyObject d, object baseValue)
