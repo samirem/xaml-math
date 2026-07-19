@@ -100,6 +100,13 @@ internal sealed class MatrixCommandParser : ICommandParser, IEnvironmentParser
             lastRow.Add(lastCellAtom);
         }
 
+        // A trailing row separator (`\cases{a \cr b \cr}`) leaves behind an empty row that
+        // MakeRectangular would pad with NullAtoms, producing a phantom 0.35 em band at the bottom
+        // of the block. LaTeX ignores such a trailing separator, so drop the empty last row - but
+        // only if it is not the sole row, so that `\matrix{}` still renders as a single empty row.
+        if (rows.Count > 1 && rows[rows.Count - 1].Count == 0)
+            rows.RemoveAt(rows.Count - 1);
+
         MakeRectangular(rows);
 
         return rows;

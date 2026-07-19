@@ -626,18 +626,6 @@
                 },
                 "Type": "Ordinary"
               }
-            ],
-            [
-              {
-                "[AtomType]": "NullAtom",
-                "Source": null,
-                "Type": "Ordinary"
-              },
-              {
-                "[AtomType]": "NullAtom",
-                "Source": null,
-                "Type": "Ordinary"
-              }
             ]
           ],
           "Source": {
