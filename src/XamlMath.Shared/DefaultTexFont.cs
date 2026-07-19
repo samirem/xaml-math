@@ -182,7 +182,19 @@ internal sealed class DefaultTexFont : ITeXFont
         var size = GetSizeFactor(style)*glyphScale;
         var fontInfo = fontInfoList[charFont.FontId];
         var metrics = GetMetrics(charFont, size);
-        return metrics.Map(m => new CharInfo(charFont.Character, fontInfo.Font, size, charFont.FontId, m));
+        return metrics.Map(m =>
+        {
+            var charInfo = new CharInfo(charFont.Character, fontInfo.Font, size, charFont.FontId, m);
+
+            // Scaling happens about the baseline, so an axis-centred glyph's centre falls to axis*scale.
+            // Lift it back onto the axis, where the unscaled = and + beside it sit. The axis height is
+            // taken at the UNSCALED size factor on purpose: the axis is a property of the surrounding
+            // math, not of the shrunken glyph.
+            if (glyphScale != 1d)
+                charInfo.AxisCenteringShift = -GetAxisHeight(style)*(1d - glyphScale);
+
+            return charInfo;
+        });
     }
 
     public double GetKern(CharFont leftCharFont, CharFont rightCharFont, TexStyle style)

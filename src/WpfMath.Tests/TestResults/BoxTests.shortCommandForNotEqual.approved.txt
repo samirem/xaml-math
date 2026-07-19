@@ -4,6 +4,7 @@
     {
       "Background": null,
       "Character": {
+        "AxisCenteringShift": 0.0,
         "Character": "6",
         "Font": "pack://application:,,,/WpfMath;component/Fonts/cmsy10.ttf",
         "FontId": 3,
@@ -50,6 +51,7 @@
     {
       "Background": null,
       "Character": {
+        "AxisCenteringShift": 0.0,
         "Character": "=",
         "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
         "FontId": 1,

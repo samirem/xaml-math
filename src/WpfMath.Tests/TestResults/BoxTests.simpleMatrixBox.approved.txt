@@ -4,6 +4,7 @@
     {
       "Background": null,
       "Character": {
+        "AxisCenteringShift": 0.0,
         "Character": "h",
         "Font": "pack://application:,,,/WpfMath;component/Fonts/cmex10.ttf",
         "FontId": 2,
@@ -79,6 +80,7 @@
                 {
                   "Background": null,
                   "Character": {
+                    "AxisCenteringShift": 0.0,
                     "Character": "2",
                     "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
                     "FontId": 1,
@@ -176,6 +178,7 @@
                 {
                   "Background": null,
                   "Character": {
+                    "AxisCenteringShift": 0.0,
                     "Character": "2",
                     "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
                     "FontId": 1,
@@ -287,6 +290,7 @@
                 {
                   "Background": null,
                   "Character": {
+                    "AxisCenteringShift": 0.0,
                     "Character": "2",
                     "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
                     "FontId": 1,
@@ -384,6 +388,7 @@
                 {
                   "Background": null,
                   "Character": {
+                    "AxisCenteringShift": 0.0,
                     "Character": "2",
                     "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
                     "FontId": 1,
@@ -495,6 +500,7 @@
     {
       "Background": null,
       "Character": {
+        "AxisCenteringShift": 0.0,
         "Character": "i",
         "Font": "pack://application:,,,/WpfMath;component/Fonts/cmex10.ttf",
         "FontId": 2,

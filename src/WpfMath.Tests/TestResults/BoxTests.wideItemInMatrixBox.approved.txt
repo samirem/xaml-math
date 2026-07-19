@@ -4,6 +4,7 @@
     {
       "Background": null,
       "Character": {
+        "AxisCenteringShift": 0.0,
         "Character": "x",
         "Font": "pack://application:,,,/WpfMath;component/Fonts/cmmi10.ttf",
         "FontId": 0,
@@ -50,6 +51,7 @@
     {
       "Background": null,
       "Character": {
+        "AxisCenteringShift": 0.0,
         "Character": "=",
         "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
         "FontId": 1,
@@ -99,6 +101,7 @@
         {
           "Background": null,
           "Character": {
+            "AxisCenteringShift": 0.0,
             "Character": "·",
             "Font": "pack://application:,,,/WpfMath;component/Fonts/cmex10.ttf",
             "FontId": 2,
@@ -174,6 +177,7 @@
                     {
                       "Background": null,
                       "Character": {
+                        "AxisCenteringShift": 0.0,
                         "Character": "0",
                         "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
                         "FontId": 1,
@@ -274,6 +278,7 @@
                         {
                           "Background": null,
                           "Character": {
+                            "AxisCenteringShift": 0.0,
                             "Character": "¡",
                             "Font": "pack://application:,,,/WpfMath;component/Fonts/cmsy10.ttf",
                             "FontId": 3,
@@ -320,6 +325,7 @@
                         {
                           "Background": null,
                           "Character": {
+                            "AxisCenteringShift": 0.0,
                             "Character": "r",
                             "Font": "pack://application:,,,/WpfMath;component/Fonts/cmmi10.ttf",
                             "FontId": 0,
@@ -434,6 +440,7 @@
                     {
                       "Background": null,
                       "Character": {
+                        "AxisCenteringShift": 0.0,
                         "Character": "0",
                         "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
                         "FontId": 1,
@@ -545,6 +552,7 @@
                     {
                       "Background": null,
                       "Character": {
+                        "AxisCenteringShift": 0.0,
                         "Character": "0",
                         "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
                         "FontId": 1,
@@ -642,6 +650,7 @@
                     {
                       "Background": null,
                       "Character": {
+                        "AxisCenteringShift": 0.0,
                         "Character": "0",
                         "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
                         "FontId": 1,
@@ -742,6 +751,7 @@
                         {
                           "Background": null,
                           "Character": {
+                            "AxisCenteringShift": 0.0,
                             "Character": "¡",
                             "Font": "pack://application:,,,/WpfMath;component/Fonts/cmsy10.ttf",
                             "FontId": 3,
@@ -788,6 +798,7 @@
                         {
                           "Background": null,
                           "Character": {
+                            "AxisCenteringShift": 0.0,
                             "Character": "r",
                             "Font": "pack://application:,,,/WpfMath;component/Fonts/cmmi10.ttf",
                             "FontId": 0,
@@ -834,6 +845,7 @@
                         {
                           "Background": null,
                           "Character": {
+                            "AxisCenteringShift": 0.0,
                             "Character": "s",
                             "Font": "pack://application:,,,/WpfMath;component/Fonts/cmmi10.ttf",
                             "FontId": 0,
@@ -880,6 +892,7 @@
                         {
                           "Background": null,
                           "Character": {
+                            "AxisCenteringShift": 0.0,
                             "Character": "i",
                             "Font": "pack://application:,,,/WpfMath;component/Fonts/cmmi10.ttf",
                             "FontId": 0,
@@ -929,6 +942,7 @@
                             {
                               "Background": null,
                               "Character": {
+                                "AxisCenteringShift": 0.0,
                                 "Character": "n",
                                 "Font": "pack://application:,,,/WpfMath;component/Fonts/cmmi10.ttf",
                                 "FontId": 0,
@@ -963,6 +977,7 @@
                                 {
                                   "Background": null,
                                   "Character": {
+                                    "AxisCenteringShift": 0.0,
                                     "Character": "2",
                                     "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
                                     "FontId": 1,
@@ -1050,6 +1065,7 @@
                         {
                           "Background": null,
                           "Character": {
+                            "AxisCenteringShift": 0.0,
                             "Character": "(",
                             "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
                             "FontId": 1,
@@ -1096,6 +1112,7 @@
                         {
                           "Background": null,
                           "Character": {
+                            "AxisCenteringShift": 0.0,
                             "Character": "µ",
                             "Font": "pack://application:,,,/WpfMath;component/Fonts/cmmi10.ttf",
                             "FontId": 0,
@@ -1142,6 +1159,7 @@
                         {
                           "Background": null,
                           "Character": {
+                            "AxisCenteringShift": 0.0,
                             "Character": ")",
                             "Font": "pack://application:,,,/WpfMath;component/Fonts/cmr10.ttf",
                             "FontId": 1,
@@ -1270,6 +1288,7 @@
         {
           "Background": null,
           "Character": {
+            "AxisCenteringShift": 0.0,
             "Character": "¸",
             "Font": "pack://application:,,,/WpfMath;component/Fonts/cmex10.ttf",
             "FontId": 2,
