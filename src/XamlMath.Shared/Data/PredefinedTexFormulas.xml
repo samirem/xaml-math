@@ -127,11 +127,13 @@
   <!-- Composed TeX symbols -->
 
   <!-- The permille sign only exists in the system text font, and that font draws it a touch larger than
-       the math digits beside it. 0.88 matches the digit height; the 0.5 lift centres the shrunken glyph
-       on the original one instead of leaving it standing low on the baseline. -->
+       the math digits beside it. Judged at the sizes the glyph is actually read at (FormulaControl scale
+       12-16 px, 96 dpi, no supersampling): 0.88 with a half lift measured well on a supersampled render
+       but came out visibly small and riding high on the real pixel grid. 0.94 keeps the correction to
+       what the eye asks for at 16 px, and the small lift only does visible work at report/print sizes. -->
   <Formula name="permille" enabled="true">
     <CreateFormula name="f">
-      <Argument type="string" value="\scaletext[0.5]{0.88}{‰}" />
+      <Argument type="string" value="\scaletext[0.15]{0.94}{‰}" />
     </CreateFormula>
     <Return name="f" />
   </Formula>
