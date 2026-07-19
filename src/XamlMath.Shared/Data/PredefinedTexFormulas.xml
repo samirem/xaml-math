@@ -126,9 +126,12 @@
 
   <!-- Composed TeX symbols -->
 
+  <!-- The permille sign only exists in the system text font, and that font draws it a touch larger than
+       the math digits beside it. 0.88 matches the digit height; the 0.5 lift centres the shrunken glyph
+       on the original one instead of leaving it standing low on the baseline. -->
   <Formula name="permille" enabled="true">
     <CreateFormula name="f">
-      <Argument type="string" value="\text{‰}" />
+      <Argument type="string" value="\scaletext[0.5]{0.88}{‰}" />
     </CreateFormula>
     <Return name="f" />
   </Formula>

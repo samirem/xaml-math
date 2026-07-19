@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using XamlMath.Atoms;
 using XamlMath.Colors;
@@ -41,6 +42,7 @@ public class TexFormulaParser
         "left",
         "overline",
         "right",
+        "scaletext",
         "sqrt"
     };
 
@@ -289,7 +291,16 @@ public class TexFormulaParser
         formula.Add(scriptsAtom, value.Segment(initialPosition, position - initialPosition));
     }
 
-    private static TexFormula ConvertRawText(SourceSpan value, string textStyle)
+    /// <param name="glyphScale">
+    /// Size factor for every character produced; 1 (the default) yields plain <see cref="CharAtom"/>s, so
+    /// unscaled text keeps parsing to exactly the atoms it always did.
+    /// </param>
+    /// <param name="glyphLift">See <c>CharInfo.Scaled</c>; ignored at <paramref name="glyphScale"/> 1.</param>
+    private static TexFormula ConvertRawText(
+        SourceSpan value,
+        string textStyle,
+        double glyphScale = 1d,
+        double glyphLift = 0d)
     {
         var formula = new TexFormula { Source = value, TextStyle = textStyle };
 
@@ -301,7 +312,9 @@ public class TexFormulaParser
             var source = value.Segment(position, 1);
             var atom = IsWhiteSpace(ch)
                 ? (Atom)new SpaceAtom(source)
-                : new CharAtom(source, ch, textStyle);
+                : glyphScale == 1d
+                    ? new CharAtom(source, ch, textStyle)
+                    : new ScaledCharAtom(source, ch, textStyle, glyphScale, glyphLift);
             position++;
             formula.Add(atom, value.Segment(initialPosition, position - initialPosition));
         }
@@ -500,6 +513,43 @@ public class TexFormulaParser
                     return new Tuple<AtomAppendMode, Atom?>(
                         AtomAppendMode.Add,
                         new Radical(source, sqrtFormula.RootAtom ?? new NullAtom(), degreeFormula?.RootAtom));
+                }
+            case "scaletext":
+                {
+                    // \scaletext[lift]{factor}{text}: the text argument rendered like \text, but with every
+                    // glyph drawn at `factor` of the surrounding size (box metrics included). The math fonts
+                    // get the same knob per symbol through the SymbolMapping `scale` attribute; this is its
+                    // counterpart for characters that only exist in the system text font. The optional
+                    // `lift` gives back a fraction of the height the scaling removed, so a shrunken glyph
+                    // can sit optically centred against the digits instead of on the baseline.
+                    var liftText = ReadElementGroupOptional(value, ref position, leftBracketChar, rightBracketChar)
+                        ?.ToString();
+                    var lift = 0d;
+                    if (!string.IsNullOrEmpty(liftText)
+                        && !double.TryParse(liftText, NumberStyles.Float, CultureInfo.InvariantCulture, out lift))
+                        throw new TexParseException(
+                            $"`scaletext` expects a numeric lift fraction, got \"{liftText}\"");
+
+                    var afterFactor = ReadElement(value, position);
+                    position = afterFactor.position;
+                    var factorText = afterFactor.source.ToString();
+                    if (!double.TryParse(factorText, NumberStyles.Float, CultureInfo.InvariantCulture, out var factor)
+                        || factor <= 0d)
+                        throw new TexParseException(
+                            $"`scaletext` expects a positive scale factor, got \"{factorText}\"");
+
+                    var afterText = ReadElement(value, position);
+                    position = afterText.position;
+                    var scaledFormula = ConvertRawText(
+                        afterText.source,
+                        TexUtilities.TextStyleName,
+                        factor,
+                        lift);
+
+                    source = value.Segment(start, position - start);
+                    return new Tuple<AtomAppendMode, Atom?>(
+                        AtomAppendMode.Add,
+                        scaledFormula.RootAtom ?? new NullAtom(source));
                 }
             case "color":
                 {
