@@ -129,6 +129,34 @@ internal sealed class DefaultTexFontParser
         return result;
     }
 
+    /// <summary>
+    /// Optional per-symbol glyph scale factors, keyed by symbol name. A <c>SymbolMapping</c> may carry
+    /// a <c>scale</c> attribute to render that one glyph smaller (or larger) than the surrounding math,
+    /// for symbols whose design size does not sit well beside the text it appears in. Symbols without
+    /// the attribute are absent from the dictionary and render unscaled.
+    /// </summary>
+    public IReadOnlyDictionary<string, double> GetSymbolScales()
+    {
+        var result = new Dictionary<string, double>();
+
+        var symbolMappingsElement = rootElement.Element("SymbolMappings");
+        if (symbolMappingsElement == null)
+            throw new InvalidOperationException("Cannot find SymbolMappings element.");
+
+        foreach (var mappingElement in symbolMappingsElement.Elements("SymbolMapping"))
+        {
+            var scale = mappingElement.AttributeDoubleValue("scale", 1.0);
+            if (scale <= 0.0)
+                throw new InvalidOperationException(
+                    $"SymbolMapping '{mappingElement.AttributeValue("name")}' has a non-positive scale.");
+
+            if (scale != 1.0)
+                result.Add(mappingElement.AttributeValue("name"), scale);
+        }
+
+        return result;
+    }
+
     public IReadOnlyList<string> GetDefaultTextStyleMappings()
     {
         var result = new string[3];

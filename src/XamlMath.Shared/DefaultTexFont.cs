@@ -13,6 +13,7 @@ internal sealed class DefaultTexFont : ITeXFont
     private readonly IReadOnlyDictionary<string, object> generalSettings;
     private readonly IReadOnlyDictionary<string, IReadOnlyList<CharFont>> textStyleMappings;
     private readonly IReadOnlyDictionary<string, CharFont> symbolMappings;
+    private readonly IReadOnlyDictionary<string, double> symbolScales;
     internal readonly IReadOnlyList<string> defaultTextStyleMappings;
     private readonly IReadOnlyList<TexFontInfo> fontInfoList;
    
@@ -39,6 +40,7 @@ internal sealed class DefaultTexFont : ITeXFont
         textStyleMappings = parser.GetTextStyleMappings();
         defaultTextStyleMappings = parser.GetDefaultTextStyleMappings();
         symbolMappings = parser.GetSymbolMappings();
+        symbolScales = parser.GetSymbolScales();
         fontInfoList = parser.GetFontDescriptions();
         // Check that Mu font exists.
         var muFontId = (int)generalSettings["mufontid"];
@@ -156,12 +158,28 @@ internal sealed class DefaultTexFont : ITeXFont
 
     public Result<CharInfo> GetCharInfo(string symbolName, TexStyle style) =>
         symbolMappings.TryGetValue(symbolName, out var mapping)
-            ? this.GetCharInfo(mapping, style)
+            ? this.GetCharInfo(mapping, style, GetSymbolScale(symbolName))
             : Result.Error<CharInfo>(new SymbolMappingNotFoundException(symbolName));
 
-    public Result<CharInfo> GetCharInfo(CharFont charFont, TexStyle style)
+    public Result<CharInfo> GetCharInfo(CharFont charFont, TexStyle style) =>
+        this.GetCharInfo(charFont, style, glyphScale: 1d);
+
+    /// <summary>
+    /// The optional per-symbol glyph scale declared by a <c>SymbolMapping</c>'s <c>scale</c> attribute;
+    /// 1 (unscaled) for every symbol that does not declare one.
+    /// </summary>
+    private double GetSymbolScale(string symbolName) =>
+        symbolScales.TryGetValue(symbolName, out var scale) ? scale : 1d;
+
+    /// <summary>
+    /// Builds the character info at the style's size factor, optionally multiplied by a per-symbol
+    /// glyph scale. The scale is folded into the size BEFORE the metrics are computed, so the layout
+    /// box shrinks with the glyph and surrounding spacing stays coherent - the alternative (scaling the
+    /// drawn glyph only) would leave the character rattling around inside its original box.
+    /// </summary>
+    private Result<CharInfo> GetCharInfo(CharFont charFont, TexStyle style, double glyphScale)
     {
-        var size = GetSizeFactor(style);
+        var size = GetSizeFactor(style)*glyphScale;
         var fontInfo = fontInfoList[charFont.FontId];
         var metrics = GetMetrics(charFont, size);
         return metrics.Map(m => new CharInfo(charFont.Character, fontInfo.Font, size, charFont.FontId, m));
