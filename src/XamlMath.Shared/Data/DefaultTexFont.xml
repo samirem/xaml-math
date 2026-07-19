@@ -281,7 +281,7 @@ for a text style is not defined (e.g. "numbers" and "small" in "mathcal") -->
     <SymbolMapping name="equals" ch="61" fontId="1"/>
     <SymbolMapping name="gt" ch="62" fontId="0"/>
     <SymbolMapping name="lt" ch="60" fontId="0"/>
-    <SymbolMapping name="leq" ch="183" fontId="3" scale="0.60"/>
+    <SymbolMapping name="leq" ch="183" fontId="3" scale="0.62"/>
     <SymbolMapping name="le" ch="183" fontId="3"/>
     <SymbolMapping name="prec" ch="193" fontId="3"/>
     <SymbolMapping name="preceq" ch="185" fontId="3"/>
@@ -293,7 +293,7 @@ for a text style is not defined (e.g. "numbers" and "small" in "mathcal") -->
     <SymbolMapping name="vdash" ch="96" fontId="3"/>
     <SymbolMapping name="smile" ch="94" fontId="0"/>
     <SymbolMapping name="frown" ch="95" fontId="0"/>
-    <SymbolMapping name="geq" ch="184" fontId="3" scale="0.60"/>
+    <SymbolMapping name="geq" ch="184" fontId="3" scale="0.62"/>
     <SymbolMapping name="ge" ch="184" fontId="3"/>
     <SymbolMapping name="succ" ch="194" fontId="3"/>
     <SymbolMapping name="succeq" ch="186" fontId="3"/>
@@ -403,14 +403,14 @@ for a text style is not defined (e.g. "numbers" and "small" in "mathcal") -->
     <SymbolMapping name="curlyeqsucc" ch="51" fontId="4" />
     <SymbolMapping name="preccurlyeq" ch="52" fontId="4" />
     <SymbolMapping name="leqq" ch="53" fontId="4" />
-    <SymbolMapping name="leqslant" ch="54" fontId="4" scale="0.60" />
+    <SymbolMapping name="leqslant" ch="54" fontId="4" scale="0.62" />
     <SymbolMapping name="lessgtr" ch="55" fontId="4" />
     <SymbolMapping name="backprime" ch="56" fontId="4" />
     <SymbolMapping name="risingdotseq" ch="58" fontId="4" />
     <SymbolMapping name="fallingdotseq" ch="59" fontId="4" />
     <SymbolMapping name="succcurlyeq" ch="60" fontId="4" />
     <SymbolMapping name="geqq" ch="61" fontId="4" />
-    <SymbolMapping name="geqslant" ch="62" fontId="4" scale="0.60" />
+    <SymbolMapping name="geqslant" ch="62" fontId="4" scale="0.62" />
     <SymbolMapping name="gtrless" ch="63" fontId="4" />
     <SymbolMapping name="vartriangleright" ch="66" fontId="4" />
     <SymbolMapping name="vartriangleleft" ch="67" fontId="4" />
