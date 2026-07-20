@@ -85,32 +85,8 @@ internal sealed record MatrixAtom : Atom
 
         var axis = environment.MathFont.GetAxisHeight(environment.Style);
         var containerHeight = rowsContainer.TotalHeight;
-
-        // Vertically centre the block on the math axis, using its OPTICAL centre rather than the
-        // centre of its bounding box.
-        //
-        // Every row above was laid out as a band: the cell is centred inside the band by equal
-        // `tbGap` struts, and the band reports Height = TotalHeight, Depth = 0. So a row's content
-        // sits at the middle of its own band, and the analogue of a TeX row baseline here is the
-        // band centre. What should land on the axis is therefore the midpoint between the FIRST
-        // and LAST row's band centres - not the midpoint of the stacked bounding box.
-        //
-        // Measured from the top of the block:
-        //     first band centre = H_first / 2
-        //     last  band centre = containerHeight - H_last / 2
-        //     optical centre    = containerHeight / 2 + (H_first - H_last) / 4
-        //
-        // The residual (H_first - H_last) / 4 vanishes when the outer rows are equally tall (so
-        // uniform matrices are unaffected), but for e.g. a \cases block with a \frac row against a
-        // plain row it is ~0.18 em - enough to make a surrounding "sym = max{...}" label and the
-        // "= result" that follows visibly off-centre.
-        var rowCount = rowsContainer.Children.Count;
-        var firstRowHeight = rowCount > 0 ? rowsContainer.Children[0].TotalHeight : 0.0;
-        var lastRowHeight = rowCount > 0 ? rowsContainer.Children[rowCount - 1].TotalHeight : 0.0;
-        var opticalCentre = containerHeight / 2 + (firstRowHeight - lastRowHeight) / 4;
-
-        rowsContainer.Height = opticalCentre + axis;
-        rowsContainer.Depth = containerHeight - rowsContainer.Height;
+        rowsContainer.Depth = containerHeight / 2 - axis;
+        rowsContainer.Height = containerHeight / 2 + axis;
 
         return rowsContainer;
     }

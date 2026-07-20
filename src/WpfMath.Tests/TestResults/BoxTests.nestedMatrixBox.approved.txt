@@ -830,9 +830,9 @@
       "Width": 2.900006
     }
   ],
-  "Depth": 1.752777,
+  "Depth": 1.416666,
   "Foreground": null,
-  "Height": 1.580555,
+  "Height": 1.916666,
   "Italic": 0.0,
   "Shift": 0.0,
   "Source": {
