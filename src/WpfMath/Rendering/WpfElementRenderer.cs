@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
@@ -23,14 +23,22 @@ internal sealed class WpfElementRenderer : IElementRenderer
 
     private readonly DrawingContext _targetContext;
     private readonly double _scale;
+    private readonly double _pixelsPerDip;
+    private readonly double _syntheticWeight;
 
     private readonly DrawingGroup _foregroundGroup = new();
     private readonly DrawingContext _foregroundContext;
 
-    public WpfElementRenderer(DrawingContext targetContext, double scale)
+    public WpfElementRenderer(
+        DrawingContext targetContext,
+        double scale,
+        double pixelsPerDip = 1.0,
+        double syntheticWeight = 0.0)
     {
         _targetContext = targetContext;
         _scale = scale;
+        _pixelsPerDip = pixelsPerDip;
+        _syntheticWeight = syntheticWeight;
 
         _foregroundContext = _foregroundGroup.Append();
     }
@@ -58,8 +66,19 @@ internal sealed class WpfElementRenderer : IElementRenderer
 
     public void RenderCharacter(CharInfo info, double x, double y, IBrush? foreground)
     {
-        var glyphRun = info.GetGlyphRun(x, y, _scale);
-        _foregroundContext.DrawGlyphRun(foreground.ToWpf() ?? DefaultForegroundBrush, glyphRun);
+        var brush = foreground.ToWpf() ?? DefaultForegroundBrush;
+        var glyphRun = info.GetGlyphRun(x, y, _scale, _pixelsPerDip);
+        _foregroundContext.DrawGlyphRun(brush, glyphRun);
+
+        // The fill goes down first so the glyph keeps WPF's glyph-run rasterisation; the stroke only
+        // adds coverage on top of it. Reversing that, or replacing the fill with a stroked geometry,
+        // renders through the shape pipeline instead and comes out lighter than the unweighted glyph.
+        if (_syntheticWeight > 0)
+        {
+            var pen = new Pen(brush, _syntheticWeight) { LineJoin = PenLineJoin.Round };
+            pen.Freeze();
+            _foregroundContext.DrawGeometry(null, pen, glyphRun.BuildGeometry());
+        }
     }
 
     public void RenderRectangle(Rectangle rectangle, IBrush? foreground)

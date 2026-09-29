@@ -15,11 +15,13 @@ public class GeometryElementRenderer : IElementRenderer
 {
     private readonly GeometryGroup _geometry;
     private readonly double _scale;
+    private readonly double _pixelsPerDip;
 
-    public GeometryElementRenderer(GeometryGroup geometry, double scale)
+    public GeometryElementRenderer(GeometryGroup geometry, double scale, double pixelsPerDip = 1.0)
     {
         _geometry = geometry;
         _scale = scale;
+        _pixelsPerDip = pixelsPerDip;
     }
 
     public void RenderElement(Box box, double x, double y) => box.RenderTo(this, x, y);
@@ -33,7 +35,7 @@ public class GeometryElementRenderer : IElementRenderer
 
     public void RenderCharacter(CharInfo info, double x, double y, IBrush? foreground)
     {
-        var glyph = info.GetGlyphRun(x, y, _scale);
+        var glyph = info.GetGlyphRun(x, y, _scale, _pixelsPerDip);
         var glyphGeometry = glyph.BuildGeometry();
         _geometry.Children.Add(glyphGeometry);
     }
@@ -49,7 +51,7 @@ public class GeometryElementRenderer : IElementRenderer
         var group = new GeometryGroup();
         var scaledTransforms = transforms.Select(t => t.Scale(_scale));
         ApplyTransformations(scaledTransforms, group);
-        var nestedRenderer = new GeometryElementRenderer(group, _scale);
+        var nestedRenderer = new GeometryElementRenderer(group, _scale, _pixelsPerDip);
         nestedRenderer.RenderElement(box, x, y);
         _geometry.Children.Add(group);
     }

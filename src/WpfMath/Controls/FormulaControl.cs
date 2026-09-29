@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -48,6 +48,13 @@ public class FormulaControl : Control
     {
         get => (string)GetValue(SystemTextFontNameProperty);
         set => SetValue(SystemTextFontNameProperty, value);
+    }
+
+    /// <summary>Width in DIPs of a hairline stroke laid over each glyph, to darken thin stems.</summary>
+    public double SyntheticWeight
+    {
+        get => (double)GetValue(SyntheticWeightProperty);
+        set => SetValue(SyntheticWeightProperty, value);
     }
 
     public bool HasError
@@ -108,6 +115,12 @@ public class FormulaControl : Control
             "Arial",
             FrameworkPropertyMetadataOptions.AffectsMeasure));
 
+    public static readonly DependencyProperty SyntheticWeightProperty = DependencyProperty.Register(
+        nameof(SyntheticWeight), typeof(double), typeof(FormulaControl),
+        new FrameworkPropertyMetadata(
+            0.0,
+            FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
     public static readonly DependencyProperty SelectionStartProperty = DependencyProperty.Register(
         nameof(SelectionStart), typeof(int), typeof(FormulaControl),
         new FrameworkPropertyMetadata(
@@ -143,6 +156,15 @@ public class FormulaControl : Control
         DefaultStyleKeyProperty.OverrideMetadata(
             typeof(FormulaControl),
             new FrameworkPropertyMetadata(typeof(FormulaControl)));
+    }
+
+    /// <summary>Re-measures and repaints when the control moves to a monitor with a different DPI.</summary>
+    /// <remarks>The glyph runs are rasterised for a fixed pixels-per-DIP, so a stale one renders soft.</remarks>
+    protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
+    {
+        base.OnDpiChanged(oldDpi, newDpi);
+        InvalidateMeasure();
+        InvalidateVisual();
     }
 
     protected override void OnRender(DrawingContext drawingContext)
@@ -188,7 +210,10 @@ public class FormulaControl : Control
             }
         }
 
-        _bounds = texFormula.RenderTo(drawingContext, environment, Scale);
+        _bounds = texFormula.RenderTo(
+            drawingContext, environment, Scale,
+            pixelsPerDip: PixelsPerDip(),
+            syntheticWeight: SyntheticWeight);
     }
 
     protected override Size MeasureOverride(Size constraint)
@@ -218,7 +243,27 @@ public class FormulaControl : Control
                 scale: Scale,
                 systemTextFontName: SystemTextFontName,
                 foreground: Foreground),
-            Scale);
+            Scale,
+            pixelsPerDip: PixelsPerDip(),
+            syntheticWeight: SyntheticWeight);
+    }
+
+    /// <summary>Device pixels per DIP of the surface this control renders onto.</summary>
+    /// <remarks>
+    /// Measure and render must agree, or the ink box the layout reserves does not match the ink the
+    /// glyph run paints. Falls back to 96 dpi before the control joins a presentation source.
+    /// </remarks>
+    private double PixelsPerDip()
+    {
+        try
+        {
+            var dpi = VisualTreeHelper.GetDpi(this).PixelsPerDip;
+            return dpi > 0 ? dpi : 1.0;
+        }
+        catch (InvalidOperationException)
+        {
+            return 1.0;
+        }
     }
 
     private static object CoerceFormula(DependencyObject d, object baseValue)
