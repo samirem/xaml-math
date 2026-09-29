@@ -97,7 +97,7 @@ public class FormulaControl : Control
         nameof(Formula), typeof(string), typeof(FormulaControl),
         new FrameworkPropertyMetadata(
             "",
-            FrameworkPropertyMetadataOptions.AffectsMeasure,
+            FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
             null,
             coerceValueCallback: CoerceFormula));
 
@@ -105,7 +105,7 @@ public class FormulaControl : Control
         nameof(Scale), typeof(double), typeof(FormulaControl),
         new FrameworkPropertyMetadata(
             20d,
-            FrameworkPropertyMetadataOptions.AffectsMeasure,
+            FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
             null,
             coerceValueCallback: CoerceScaleValue));
 
@@ -113,7 +113,7 @@ public class FormulaControl : Control
         nameof(SystemTextFontName), typeof(string), typeof(FormulaControl),
         new FrameworkPropertyMetadata(
             "Arial",
-            FrameworkPropertyMetadataOptions.AffectsMeasure));
+            FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty SyntheticWeightProperty = DependencyProperty.Register(
         nameof(SyntheticWeight), typeof(double), typeof(FormulaControl),
@@ -125,19 +125,19 @@ public class FormulaControl : Control
         nameof(SelectionStart), typeof(int), typeof(FormulaControl),
         new FrameworkPropertyMetadata(
             0,
-            FrameworkPropertyMetadataOptions.AffectsMeasure));
+            FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty SelectionLengthProperty = DependencyProperty.Register(
         nameof(SelectionLength), typeof(int), typeof(FormulaControl),
         new FrameworkPropertyMetadata(
             0,
-            FrameworkPropertyMetadataOptions.AffectsMeasure));
+            FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty SelectionBrushProperty = DependencyProperty.Register(
         nameof(SelectionBrush), typeof(Brush), typeof(FormulaControl),
         new FrameworkPropertyMetadata(
             null,
-            FrameworkPropertyMetadataOptions.AffectsMeasure));
+            FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty HasErrorProperty = DependencyProperty.Register(
         nameof(HasError), typeof(bool), typeof(FormulaControl),
