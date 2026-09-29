@@ -7,3 +7,7 @@ obj/
 *.received.*
 *.tmp.cs
 *.user
+
+# AutoStruct publish recipe output (src/AutoStruct.Section.WPF/NOTES.md in Section)
+/as-nupkg/
+*.swp
