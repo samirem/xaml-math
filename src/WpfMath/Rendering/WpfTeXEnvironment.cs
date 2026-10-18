@@ -27,7 +27,7 @@ public static class WpfTeXEnvironment
         Brush? background = null)
     {
         var mathFont = new DefaultTexFont(WpfMathFontProvider.Instance, scale);
-        var textFont = GetSystemFont(systemTextFontName, scale);
+        var textFont = GetSystemFont(systemTextFontName, scale, mathFont.GetSizeFactor);
 
         return new TexEnvironment(
             style,
@@ -37,7 +37,7 @@ public static class WpfTeXEnvironment
             foreground.ToPlatform());
     }
 
-    private static WpfSystemFont GetSystemFont(string fontName, double size)
+    private static WpfSystemFont GetSystemFont(string fontName, double size, Func<TexStyle, double> sizeFactor)
     {
         var fontFamily = System.Windows.Media.Fonts.SystemFontFamilies
             .FirstOrDefault(ff => ff.ToString() == fontName || ff.FamilyNames.Values?.Contains(fontName) == true);
@@ -52,6 +52,6 @@ public static class WpfTeXEnvironment
                 fontFamily = new FontFamily(fontName);
         }
 
-        return new WpfSystemFont(size, fontFamily);
+        return new WpfSystemFont(size, fontFamily, sizeFactor);
     }
 }

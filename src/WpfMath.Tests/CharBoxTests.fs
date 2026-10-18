@@ -46,3 +46,10 @@ type CharBoxTests() =
         let action = Func<obj>(fun () -> upcast WpfCharInfoEx.GetGlyphRun(charBox.Character, 20.0, 0.5, 1.0))
         let exc = Assert.Throws<TexCharacterMappingNotFoundException>(action)
         Assert.Equal("The Arial font does not support '∅' (U+2205) character.", exc.Message)
+
+    [<Fact>]
+    member _.``A text character shrinks with the math in script style as a digit does``() =
+        let width style (text: string) = parse(text).CreateBox(WpfTeXEnvironment.Create(style)).Width
+        let digitRatio = width TexStyle.Script "8" / width TexStyle.Display "8"
+        let permilleRatio = width TexStyle.Script @"\permille" / width TexStyle.Display @"\permille"
+        Assert.Equal(digitRatio, permilleRatio, 6)

@@ -13,10 +13,12 @@ internal sealed class WpfSystemFont : ITeXFont
 {
     private readonly FontFamily fontFamily;
     private readonly Lazy<Typeface> _typeface;
+    private readonly Func<TexStyle, double> sizeFactor;
 
-    public WpfSystemFont(double size, FontFamily fontFamily)
+    public WpfSystemFont(double size, FontFamily fontFamily, Func<TexStyle, double> sizeFactor)
     {
         this.fontFamily = fontFamily;
+        this.sizeFactor = sizeFactor;
         Size = size;
         _typeface = new Lazy<Typeface>(InitializeTypeface);
     }
@@ -47,9 +49,10 @@ internal sealed class WpfSystemFont : ITeXFont
                 $"Glyph typeface for font {this.fontFamily.BaseUri} was not found"));
         }
 
-        var metrics = GetFontMetrics(character, typeface);
+        var size = this.sizeFactor(style);
+        var metrics = GetFontMetrics(character, typeface, size);
         return Result.Ok(
-            new CharInfo(character, new WpfGlyphTypeface(glyphTypeface), 1.0, TexFontUtilities.NoFontId, metrics));
+            new CharInfo(character, new WpfGlyphTypeface(glyphTypeface), size, TexFontUtilities.NoFontId, metrics));
     }
 
     public Result<CharInfo> GetCharInfo(CharFont charFont, TexStyle style) =>
@@ -120,7 +123,7 @@ internal sealed class WpfSystemFont : ITeXFont
             $"Call of method {callerMethod} on {nameof(WpfSystemFont)} is not supported");
     }
 
-    private static TeXFontMetrics GetFontMetrics(char c, Typeface typeface)
+    private static TeXFontMetrics GetFontMetrics(char c, Typeface typeface, double size)
     {
         var formattedText = new FormattedText(c.ToString(),
             CultureInfo.CurrentUICulture,
@@ -155,6 +158,6 @@ internal sealed class WpfSystemFont : ITeXFont
         var scalingFactor = typeface.FontFamily.LineSpacing / typeface.FontFamily.Baseline;
         height /= scalingFactor;
 
-        return new TeXFontMetrics(formattedText.Width, height, depth, 0, 1.0);
+        return new TeXFontMetrics(formattedText.Width, height, depth, 0, size);
     }
 }

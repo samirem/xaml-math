@@ -22,7 +22,7 @@ internal sealed class DefaultTexFont : ITeXFont
         return parameters[name];
     }
 
-    private double GetSizeFactor(TexStyle style)
+    internal double GetSizeFactor(TexStyle style)
     {
         if (style < TexStyle.Script)
             return 1d;
