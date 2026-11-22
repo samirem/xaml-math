@@ -290,7 +290,7 @@ public class FormulaControl : Control
             return null;
 
         var foreground = (SolidColorBrush?)Foreground ?? Brushes.Black;
-        if (foreground.HasAnimatedProperties || foreground.Color.ColorContext is not null
+        if (!foreground.IsFrozen || foreground.Color.ColorContext is not null
             || !foreground.Transform.Value.IsIdentity || !foreground.RelativeTransform.Value.IsIdentity)
             return null;
         return Tuple.Create(Formula, SystemTextFontName, Scale, pixelsPerDip, SyntheticWeight, foreground.Color, foreground.Opacity);

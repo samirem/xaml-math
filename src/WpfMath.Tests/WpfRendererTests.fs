@@ -34,8 +34,7 @@ type WpfRendererTests() =
         let mutable failure = None
         let thread = Thread(ThreadStart(fun () ->
             try
-                let render foreground =
-                    let control = FormulaControl(Formula = @"\frac{x_1}{y}", Foreground = foreground, Scale = 14.0)
+                let render (control: FormulaControl) =
                     let bounds = System.Windows.Size(80.0, 60.0)
                     control.Measure(bounds)
                     control.Arrange(Rect(bounds))
@@ -46,9 +45,10 @@ type WpfRendererTests() =
                     bitmap.CopyPixels(pixels, 80 * 4, 0)
                     control.DesiredSize, control.Baseline, pixels
 
-                let size, baseline, black = render Brushes.Black
-                let redSize, redBaseline, red = render Brushes.Red
-                let cachedSize, cachedBaseline, cachedBlack = render Brushes.Black
+                let formula foreground = FormulaControl(Formula = @"\frac{x_1}{y}", Foreground = foreground, Scale = 14.0)
+                let size, baseline, black = render (formula Brushes.Black)
+                let redSize, redBaseline, red = render (formula Brushes.Red)
+                let cachedSize, cachedBaseline, cachedBlack = render (formula Brushes.Black)
                 Assert.True(baseline > 0.0)
                 Assert.Equal(size, redSize)
                 Assert.Equal(baseline, redBaseline)
@@ -56,6 +56,13 @@ type WpfRendererTests() =
                 Assert.Equal(size, cachedSize)
                 Assert.Equal(baseline, cachedBaseline)
                 Assert.True((black = cachedBlack))
+                let mutableInk = SolidColorBrush(Colors.Black)
+                let themed = formula mutableInk
+                let _, _, initial = render themed
+                mutableInk.Color <- Colors.Red
+                let _, _, repainted = render themed
+                Assert.True((black = initial))
+                Assert.True((red = repainted))
             with ex ->
                 failure <- Some(ExceptionDispatchInfo.Capture(ex))))
         thread.SetApartmentState(ApartmentState.STA)
