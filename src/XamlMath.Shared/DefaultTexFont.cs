@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using XamlMath.Exceptions;
 using XamlMath.Fonts;
 using XamlMath.Utils;
@@ -32,22 +33,47 @@ internal sealed class DefaultTexFont : ITeXFont
             return (double)generalSettings["scriptscriptfactor"];
     }
 
+    private static readonly ConditionalWeakTable<IFontProvider, ParsedFont> parsedFonts = new();
+
     public DefaultTexFont(IFontProvider fontProvider, double size)
     {
-        var parser = new DefaultTexFontParser(fontProvider);
-        parameters = parser.GetParameters();
-        generalSettings = parser.GetGeneralSettings();
-        textStyleMappings = parser.GetTextStyleMappings();
-        defaultTextStyleMappings = parser.GetDefaultTextStyleMappings();
-        symbolMappings = parser.GetSymbolMappings();
-        symbolScales = parser.GetSymbolScales();
-        fontInfoList = parser.GetFontDescriptions();
-        // Check that Mu font exists.
-        var muFontId = (int)generalSettings["mufontid"];
-        if (muFontId < 0 || muFontId >= fontInfoList.Count || fontInfoList[muFontId] == null)
-            throw new InvalidOperationException("ID of Mu font is invalid.");
+        var parsed = parsedFonts.GetValue(fontProvider, ParsedFont.Parse);
+        parameters = parsed.Parameters;
+        generalSettings = parsed.GeneralSettings;
+        textStyleMappings = parsed.TextStyleMappings;
+        defaultTextStyleMappings = parsed.DefaultTextStyleMappings;
+        symbolMappings = parsed.SymbolMappings;
+        symbolScales = parsed.SymbolScales;
+        fontInfoList = parsed.FontInfoList;
 
         this.Size = size;
+    }
+
+    private sealed class ParsedFont
+    {
+        public readonly IReadOnlyDictionary<string, double> Parameters;
+        public readonly IReadOnlyDictionary<string, object> GeneralSettings;
+        public readonly IReadOnlyDictionary<string, IReadOnlyList<CharFont>> TextStyleMappings;
+        public readonly IReadOnlyList<string> DefaultTextStyleMappings;
+        public readonly IReadOnlyDictionary<string, CharFont> SymbolMappings;
+        public readonly IReadOnlyDictionary<string, double> SymbolScales;
+        public readonly IReadOnlyList<TexFontInfo> FontInfoList;
+
+        private ParsedFont(DefaultTexFontParser parser)
+        {
+            Parameters = parser.GetParameters();
+            GeneralSettings = parser.GetGeneralSettings();
+            TextStyleMappings = parser.GetTextStyleMappings();
+            DefaultTextStyleMappings = parser.GetDefaultTextStyleMappings();
+            SymbolMappings = parser.GetSymbolMappings();
+            SymbolScales = parser.GetSymbolScales();
+            FontInfoList = parser.GetFontDescriptions();
+            var muFontId = (int)GeneralSettings["mufontid"];
+            if (muFontId < 0 || muFontId >= FontInfoList.Count || FontInfoList[muFontId] == null)
+                throw new InvalidOperationException("ID of Mu font is invalid.");
+        }
+
+        public static ParsedFont Parse(IFontProvider fontProvider) => new(new DefaultTexFontParser(fontProvider));
     }
 
     public bool SupportsMetrics => true;
