@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -15,8 +15,29 @@ namespace WpfMath.Controls;
 public class FormulaControl : Control
 {
     private static readonly TexFormulaParser _formulaParser = WpfTeXFormulaParser.Instance;
+    private const int LayoutCacheCapacity = 128;
+    private const int MaxCachedFormulaLength = 128;
+
+    // Controls on one UI thread can reuse the frozen drawing without keeping each other alive.
+    [ThreadStatic]
+    private static Dictionary<Tuple<string, string, double, double, double, Color, double>, FormulaLayout>? _layouts;
+
+    private readonly struct FormulaLayout
+    {
+        public readonly Size Size;
+        public readonly double Baseline;
+
+        public readonly DrawingGroup Drawing;
+
+        public FormulaLayout(Size size, double baseline, DrawingGroup drawing)
+        {
+            Size = size;
+            Baseline = baseline;
+            Drawing = drawing;
+        }
+    }
+
     private TexFormula? texFormula;
-    private Size _bounds;
 
     /// <summary>
     /// Distance, in the control's own (scaled) coordinate units, from the top of the
@@ -153,6 +174,8 @@ public class FormulaControl : Control
 
     static FormulaControl()
     {
+        ForegroundProperty.OverrideMetadata(typeof(FormulaControl),
+            new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender));
         DefaultStyleKeyProperty.OverrideMetadata(
             typeof(FormulaControl),
             new FrameworkPropertyMetadata(typeof(FormulaControl)));
@@ -172,6 +195,13 @@ public class FormulaControl : Control
         // Create formula object from input text.
         if (texFormula == null)
         {
+            return;
+        }
+
+        var pixelsPerDip = PixelsPerDip();
+        if (_layouts is not null && CacheKey(pixelsPerDip) is { } key && _layouts.TryGetValue(key, out var layout))
+        {
+            drawingContext.DrawDrawing(layout.Drawing);
             return;
         }
 
@@ -210,9 +240,9 @@ public class FormulaControl : Control
             }
         }
 
-        _bounds = texFormula.RenderTo(
+        texFormula.RenderTo(
             drawingContext, environment, Scale,
-            pixelsPerDip: PixelsPerDip(),
+            pixelsPerDip: pixelsPerDip,
             syntheticWeight: SyntheticWeight);
     }
 
@@ -224,27 +254,70 @@ public class FormulaControl : Control
             return new Size();
         }
 
+        var pixelsPerDip = PixelsPerDip();
+        if (CacheKey(pixelsPerDip) is not { } key)
+        {
+            using var context = new DrawingVisual().RenderOpen();
+            return MeasureFormula(texFormula, context, Foreground, pixelsPerDip);
+        }
+
+        var layouts = _layouts ??= new();
+        if (!layouts.TryGetValue(key, out var layout))
+        {
+            var foreground = new SolidColorBrush(key.Item6) { Opacity = key.Item7 };
+            foreground.Freeze();
+            var drawing = new DrawingGroup();
+            Size size;
+            using (var context = drawing.Open())
+                size = MeasureFormula(texFormula, context, foreground, pixelsPerDip);
+            if (!drawing.CanFreeze)
+                return size;
+            drawing.Freeze();
+
+            layout = new FormulaLayout(size, Baseline, drawing);
+            if (layouts.Count == LayoutCacheCapacity)
+                layouts.Clear();
+            layouts.Add(key, layout);
+        }
+
+        Baseline = layout.Baseline;
+        return layout.Size;
+    }
+
+    private Tuple<string, string, double, double, double, Color, double>? CacheKey(double pixelsPerDip)
+    {
+        if (Formula.Length > MaxCachedFormulaLength || SelectionBrush != null || Foreground is not (null or SolidColorBrush))
+            return null;
+
+        var foreground = (SolidColorBrush?)Foreground ?? Brushes.Black;
+        if (foreground.HasAnimatedProperties || foreground.Color.ColorContext is not null
+            || !foreground.Transform.Value.IsIdentity || !foreground.RelativeTransform.Value.IsIdentity)
+            return null;
+        return Tuple.Create(Formula, SystemTextFontName, Scale, pixelsPerDip, SyntheticWeight, foreground.Color, foreground.Opacity);
+    }
+
+    private Size MeasureFormula(TexFormula formula, DrawingContext context, Brush? foreground, double pixelsPerDip)
+    {
         // The root box's Height is the logical distance from the box top to the baseline;
         // the renderer draws content at literal (scaled) coordinates, so the baseline lands
         // at this offset from the arrange-rect top. Scale matches RenderTo's returned size.
         // CreateBox MUTATES the environment's LastFontId (RowAtom/UnderOverAtom), so this
         // uses its OWN throwaway environment and never shares the instance handed to RenderTo.
-        Baseline = texFormula.CreateBox(
+        Baseline = formula.CreateBox(
                 WpfTeXEnvironment.Create(
                     scale: Scale,
                     systemTextFontName: SystemTextFontName,
-                    foreground: Foreground))
+                    foreground: foreground))
             .Height * Scale;
 
-        using var context = new DrawingVisual().RenderOpen();
-        return texFormula.RenderTo(
+        return formula.RenderTo(
             context,
             WpfTeXEnvironment.Create(
                 scale: Scale,
                 systemTextFontName: SystemTextFontName,
-                foreground: Foreground),
+                foreground: foreground),
             Scale,
-            pixelsPerDip: PixelsPerDip(),
+            pixelsPerDip: pixelsPerDip,
             syntheticWeight: SyntheticWeight);
     }
 
